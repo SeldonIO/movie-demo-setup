@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+sed \
+    -e "s|%MYSQL_HOST%|${MYSQL_HOST:-localhost}|g" \
+    -e "s|%MEMCACHED_HOST%|${MEMCACHED_HOST:-localhost}|g" \
+    "${STARTUP_DIR}/server_config.json.template"
+

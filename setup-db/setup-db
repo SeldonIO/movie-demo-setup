@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
+export MYSQL_HOST=127.0.0.1
+export MEMCACHED_HOST=localhost
+export ZOOKEEPER_HOST=localhost
+if [[ "$(uname)" == "Darwin" ]]; then
+    BOOT2DOCKER_HOST=$(boot2docker ip)
+    export MYSQL_HOST=$BOOT2DOCKER_HOST
+    export MEMCACHED_HOST=$BOOT2DOCKER_HOST
+    export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
+fi
+${STARTUP_DIR}/create-server-config-json | tee server_config.json
+
+python ${SELDON_SERVER_HOME}/scripts/initial_setup.py \
+    --zookeeper $ZOOKEEPER_HOST \
+    --props ${STARTUP_DIR}/server_config.json \
+    --js-consumer-key uggyecofcz \
+    --all-consumer-key tnedddvlho \
+    --all-consumer-secret lzufhqbomz
+
