@@ -1,0 +1,97 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+add_item_attributes() {
+    echo "-- adding item attributes for ${CLIENT} --"
+
+    python ${SELDON_SERVER_HOME}/scripts/add_attr_schema.py \
+        -schema-file ${SCHEMA_FILE} \
+        -db-host ${DB_HOST} \
+        -db-user ${DB_USER} \
+        -db-pass ${DB_PASS} \
+        -client ${CLIENT} \
+        -clean
+
+    python ${SELDON_SERVER_HOME}/scripts/add_attr_schema.py \
+        -schema-file ${SCHEMA_FILE} \
+        -db-host ${DB_HOST} \
+        -db-user ${DB_USER} \
+        -db-pass ${DB_PASS} \
+        -client ${CLIENT}
+}
+
+import_items() {
+    echo "-- importing items for ${CLIENT}"
+
+    python ${SELDON_SERVER_HOME}/scripts/add_items.py \
+        -items ${ITEMS_FILE} \
+        -db-host ${DB_HOST} \
+        -db-user ${DB_USER} \
+        -db-pass ${DB_PASS} \
+        -client ${CLIENT}
+}
+
+import_users() {
+    echo "-- importing users for ${CLIENT}"
+
+    python ${SELDON_SERVER_HOME}/scripts/add_users.py \
+        -users ${USERS_FILE} \
+        -db-host ${DB_HOST} \
+        -db-user ${DB_USER} \
+        -db-pass ${DB_PASS} \
+        -client ${CLIENT}
+}
+
+create_user_actions() {
+    echo "-- creating user actions for ${CLIENT}"
+
+    if [[ -r "${STARTUP_DIR}/../run_settings" ]]; then
+        echo "using run_settings"
+        source "${STARTUP_DIR}/../run_settings"
+        if [[ "${USE_MOVIELENS_SAMPLE_DATA:-}" == true ]]; then
+            echo "using sample data"
+            cp ${ACTIONS_FILE}.sample ${ACTIONS_FILE}
+        fi
+    fi
+
+    python ${SELDON_SERVER_HOME}/scripts/create_actions_json.py \
+        -actions ${ACTIONS_FILE} \
+        -db-host ${DB_HOST} \
+        -db-user ${DB_USER} \
+        -db-pass ${DB_PASS} \
+        -client ${CLIENT} \
+        -out ${ACTIONS_OUT_FILE}
+}
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+PROJ_DIR=${STARTUP_DIR}/..
+
+SELDON_DATA_DIR=${PROJ_DIR}/local_data/seldon_data
+
+CLIENT=movielens
+SCHEMA_FILE=${STARTUP_DIR}/movielens_items.json
+SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
+SELDON_MODELS_DIR=${SELDON_SERVER_HOME}/vm/local_data/seldon-models
+
+export DB_HOST=127.0.0.1
+if [[ "$(uname)" == "Darwin" ]]; then
+    BOOT2DOCKER_HOST=$(boot2docker ip)
+    export DB_HOST=$BOOT2DOCKER_HOST
+fi
+DB_USER=root
+DB_PASS=mypass
+
+ITEMS_FILE=${SELDON_DATA_DIR}/movielens_items.csv
+USERS_FILE=${SELDON_DATA_DIR}/movielens_users.csv
+ACTIONS_FILE=${SELDON_DATA_DIR}/movielens_actions.csv
+
+mkdir -pv ${SELDON_MODELS_DIR}/${CLIENT}/actions/1
+ACTIONS_OUT_FILE=${SELDON_MODELS_DIR}/${CLIENT}/actions/1/actions.json
+
+add_item_attributes
+import_items
+import_users
+create_user_actions
+

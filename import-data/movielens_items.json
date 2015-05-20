@@ -1,0 +1,1 @@
+{"types": [{"type_attrs": [{"name": "title", "value_type": "string"}, {"name": "img_url", "value_type": "string"}, {"name": "top_tags", "value_type": "text"}, {"name": "movielens_tags_full", "value_type": "text"}, {"name": "actors", "value_type": "string"}, {"name": "directors", "value_type": "string"}], "type_id": 1, "type_name": "movie"}]}
