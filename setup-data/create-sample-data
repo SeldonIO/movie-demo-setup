@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+if [[ $# < 1 ]]; then
+	echo "Need SELDON_DATA_DIR"
+	exit 1
+fi
+
+SELDON_DATA_DIR=$1
+
+SAMPLE_SEED="MYSEED"
+SAMPLE_PERCENT=1
+
+if [ ! -f "${SELDON_DATA_DIR}/movielens_actions.csv.full" ];then
+    cp -v "${SELDON_DATA_DIR}/movielens_actions.csv" "${SELDON_DATA_DIR}/movielens_actions.csv.full"
+fi
+
+if [ ! -f "${SELDON_DATA_DIR}/movielens_actions.csv.sample" ];then
+    echo "creating ${SELDON_DATA_DIR}/movielens_actions.csv.sample"
+    head -1 "${SELDON_DATA_DIR}/movielens_actions.csv.full" > "${SELDON_DATA_DIR}/movielens_actions.csv.sample"
+    tail -n+2 "${SELDON_DATA_DIR}/movielens_actions.csv.full" | python ${STARTUP_DIR}/sample.py --sample-percent ${SAMPLE_PERCENT} --random-seed ${SAMPLE_SEED} >> "${SELDON_DATA_DIR}/movielens_actions.csv.sample"
+fi
+

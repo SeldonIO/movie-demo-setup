@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+# create the item meta data csv
+create_the_item_meta_data_csv() {
+	if [ ! -f "${SELDON_DATA_DIR}/movielens_items.csv" -o ! -f "${SELDON_DATA_DIR}/movielens_items.json" ]; then
+		echo "create item meta data csv"
+		python ${STARTUP_DIR}/combine_item_data_sources.py \
+			-movielens-tags ${RAW_DATA_DIR}/ml-10M100K/tags.dat \
+			-freebase-movies ${RAW_DATA_DIR}/freebase.json \
+			-hetrec-movies ${RAW_DATA_DIR}/hetrec2011-movielens/movies.dat \
+			-movielens-movies ${RAW_DATA_DIR}/ml-10M100K/movies.dat \
+			-csv ${SELDON_DATA_DIR}/movielens_items.csv \
+			-item-attr-json ${SELDON_DATA_DIR}/movielens_items.json
+	fi
+}
+
+#create the user csv (no demographic data so just the ids)
+create_the_user_csv() {
+	if [ ! -f "${SELDON_DATA_DIR}/movielens_users.csv" ];then
+		echo "create user meta data csv"
+		cat <(echo "id") <(cat ${RAW_DATA_DIR}/ml-10M100K/ratings.dat | awk -F'::' '{print $1}' | sort -n | uniq) > ${SELDON_DATA_DIR}/movielens_users.csv
+	fi
+}
+
+#create actions csv file in correct format
+create_actions_csv() {
+	if [ ! -f "${SELDON_DATA_DIR}/movielens_actions.csv" ];then
+		echo "create actions csv"
+		echo "user_id,item_id,value,time" > ${SELDON_DATA_DIR}/movielens_actions.csv
+		cat ${RAW_DATA_DIR}/ml-10M100K/ratings.dat | awk -F"::" 'BEGIN{OFS=","}{print $1,$2,$3,$4}' >> ${SELDON_DATA_DIR}/movielens_actions.csv
+	fi
+}
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+if [[ $# < 2 ]]; then
+	echo "Need RAW_DATA_DIR and SELDON_DATA_DIR"
+	exit 1
+fi
+
+RAW_DATA_DIR=$1
+SELDON_DATA_DIR=$2
+
+mkdir -p ${SELDON_DATA_DIR}
+
+create_the_item_meta_data_csv
+create_the_user_csv
+create_actions_csv
+

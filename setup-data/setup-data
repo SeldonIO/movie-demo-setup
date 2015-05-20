@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+PROJ_DIR=${STARTUP_DIR}/..
+
+RAW_DATA_DIR=${PROJ_DIR}/local_data/raw_data
+SELDON_DATA_DIR=${PROJ_DIR}/local_data/seldon_data
+
+${STARTUP_DIR}/download-movielens-data.sh ${RAW_DATA_DIR}
+
+${STARTUP_DIR}/generate-seldon-data ${RAW_DATA_DIR} ${SELDON_DATA_DIR}
+
+${STARTUP_DIR}/create-sample-data ${SELDON_DATA_DIR}
+
