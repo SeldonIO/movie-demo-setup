@@ -15,7 +15,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export MEMCACHED_HOST=$BOOT2DOCKER_HOST
     export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
 fi
-${STARTUP_DIR}/create-server-config-json | tee server_config.json
+${STARTUP_DIR}/create-server-config-json | tee ${STARTUP_DIR}/server_config.json
 
 python ${SELDON_SERVER_HOME}/scripts/initial_setup.py \
     --zookeeper $ZOOKEEPER_HOST \
