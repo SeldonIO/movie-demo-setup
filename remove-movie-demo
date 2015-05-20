@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+echo "-- removing raw data --" && rm -rfv ${STARTUP_DIR}/local_data/raw_data
+echo "-- removing seldon data --" && rm -frv ${STARTUP_DIR}/local_data/seldon_data
+
+export DB_HOST=127.0.0.1
+if [[ "$(uname)" == "Darwin" ]]; then
+    BOOT2DOCKER_HOST=$(boot2docker ip)
+    export DB_HOST=$BOOT2DOCKER_HOST
+fi
+
+echo "-- removing movielens db --"
+echo "drop schema if exists movielens"|mysql -h ${DB_HOST} -u root -pmypass
+
+rm -fv ${STARTUP_DIR}/setup-db/server_config.json
+rm -fv ${STARTUP_DIR}/dimensions.json
+

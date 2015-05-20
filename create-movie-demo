@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+${STARTUP_DIR}/setup-data/setup-data
+${STARTUP_DIR}/setup-db/setup-db
+${STARTUP_DIR}/import-data/import-data
+
