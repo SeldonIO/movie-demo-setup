@@ -5,8 +5,23 @@ set -o errexit
 
 STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-echo "-- removing raw data --" && rm -rfv ${STARTUP_DIR}/local_data/raw_data
-echo "-- removing seldon data --" && rm -frv ${STARTUP_DIR}/local_data/seldon_data
+if [[ -r "${STARTUP_DIR}/run_settings" ]]; then
+    echo "using run_settings"
+    source "${STARTUP_DIR}/run_settings"
+fi
+
+if [[ "${DONT_REMOVE_RAW_DATA:-}" == true ]]; then
+    echo "NOT REMOVING RAW_DATA"
+else
+    echo "-- removing raw data --" && rm -rfv ${STARTUP_DIR}/local_data/raw_data
+fi
+
+if [[ "${DONT_REMOVE_SELDON_DATA:-}" == true ]]; then
+    echo "NOT REMOVING SELDON_DATA"
+else
+    echo "-- removing seldon data --" && rm -frv ${STARTUP_DIR}/local_data/seldon_data
+
+fi
 
 export DB_HOST=127.0.0.1
 if [[ "$(uname)" == "Darwin" ]]; then
