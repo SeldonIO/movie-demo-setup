@@ -73,7 +73,7 @@ SELDON_DATA_DIR=${PROJ_DIR}/local_data/seldon_data
 CLIENT=movielens
 SCHEMA_FILE=${STARTUP_DIR}/movielens_items.json
 SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
-SELDON_MODELS_DIR=${SELDON_SERVER_HOME}/vm/local_data/seldon-models
+SELDON_MODELS_DIR=~/seldon-models
 
 export DB_HOST=127.0.0.1
 if [[ "$(uname)" == "Darwin" ]]; then
