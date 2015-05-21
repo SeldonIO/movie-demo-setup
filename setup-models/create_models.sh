@@ -32,6 +32,8 @@ do_matrix_factorization() {
     set_zk_node "/all_clients/${CLIENT}/offline/matrix-factorization" \
         '{"activate":true,"alpha":1,"days":1,"inputPath":"'${DATA_FOLDER}'","iterations":5,"lambda":0.1,"local":true,"outputPath":"'${DATA_FOLDER}'","rank":30,"startDay":1}'
 
+    JOB_OUTPUT_DIR_NAME=matrix-factorization
+    rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
     JOB_CLASS=io.seldon.spark.mllib.MfModelCreation
     ${STARTUP_DIR}/do-spark-job.sh $CLIENT $JOB_CLASS
 }

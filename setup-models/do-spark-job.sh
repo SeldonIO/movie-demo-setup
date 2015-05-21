@@ -26,8 +26,6 @@ setup_jar_file() {
 }
 
 run_spark_job() {
-    rm -rf ${DATA_FOLDER}/${CLIENT}/matrix-factorization/${START_DAY}
-
     echo "jar = ${JARFILE_PATH}"
     echo "Running with executor-memory ${MEM}"
 
