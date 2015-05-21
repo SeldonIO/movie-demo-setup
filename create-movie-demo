@@ -5,6 +5,11 @@ set -o errexit
 
 STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+SELDON_SERVER_HOME=${STARTUP_DIR}/../seldon-server
+
+${SELDON_SERVER_HOME}/vm/bin/stop-all
+${SELDON_SERVER_HOME}/vm/bin/start-all
+
 ${STARTUP_DIR}/setup-data/setup-data
 ${STARTUP_DIR}/setup-db/setup-db
 ${STARTUP_DIR}/import-data/import-data
