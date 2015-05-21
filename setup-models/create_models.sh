@@ -38,9 +38,25 @@ do_matrix_factorization() {
     ${STARTUP_DIR}/do-spark-job.sh $CLIENT $JOB_CLASS
 }
 
+do_item_similarity() {
+    echo " -- creating model [${CLIENT}] [item-similarity] --"
+    set_zk_node "/all_clients/${CLIENT}/offline/similar-items" \
+        '{"inputPath":"'${DATA_FOLDER}'","outputPath":"'${DATA_FOLDER}'","days":1,"sample":0.25,"limit":100,"dimsum_threshold":0.5}'
+
+    JOB_OUTPUT_DIR_NAME=item-similarity
+    rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
+    JOB_CLASS=io.seldon.spark.mllib.SimilarItems
+    ${STARTUP_DIR}/do-spark-job.sh $CLIENT $JOB_CLASS
+
+    ${STARTUP_DIR}/upload-item-similarity-sql
+}
+
 case $MODEL in
     matrix_factorization)
         do_matrix_factorization
+        ;;
+    item_similarity)
+        do_item_similarity
         ;;
     *)
         echo "ignoring unkown model[$MODEL]"

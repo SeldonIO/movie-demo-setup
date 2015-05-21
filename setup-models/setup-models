@@ -6,4 +6,5 @@ set -o errexit
 STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 ${STARTUP_DIR}/create_models.sh movielens matrix_factorization
+${STARTUP_DIR}/create_models.sh movielens item_similarity
 
