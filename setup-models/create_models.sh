@@ -42,6 +42,8 @@ do_item_similarity() {
 }
 
 do_semantic_vectors() {
+    echo " -- creating model [${CLIENT}] [svtext] --"
+
     JOB_CONFIG='{"inputPath":"/seldon-models","outputPath":"/seldon-models","startDay":1,"days":1,"activate":true,"itemType":1,"itemLimit":10000,"tagAttrs":"movielens_tags_full","jdbc":"jdbc:mysql://'${MYSQL_HOST}':3306/'${CLIENT}'?user=root&password='${MYSQL_ROOT_PASSWORD}'&characterEncoding=utf8"}'
     set_zk_node "/all_clients/${CLIENT}/offline/semvec" "${JOB_CONFIG}"
 
@@ -52,6 +54,26 @@ do_semantic_vectors() {
         -v ${DATA_FOLDER}:/seldon-models \
         seldonio/semantic-vectors-for-seldon bash -c "./semvec/semantic-vectors.py --client ${CLIENT} --zookeeper ${ZOOKEEPER_HOST}:2181"
 
+}
+
+do_word2vec() {
+    echo " -- creating model [${CLIENT}] [word2vec] --"
+
+    set_zk_node "all_clients/${CLIENT}/offline/sessionitems" \
+        '{"inputPath":"'${DATA_FOLDER}'","outputPath":"'${DATA_FOLDER}'","startDay":1,"days":1,"maxIntraSessionGapSecs":-1,"minActionsPerUser":0,"maxActionsPerUser":100000}'
+
+    JOB_OUTPUT_DIR_NAME=sessionitems
+    rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
+    JOB_CLASS=io.seldon.spark.topics.SessionItems
+    ${STARTUP_DIR}/do-spark-job.sh $CLIENT $JOB_CLASS
+
+    set_zk_node "all_clients/${CLIENT}/offline/word2vec" \
+        '{"inputPath":"'${DATA_FOLDER}'","outputPath":"'${DATA_FOLDER}'","activate":true,"startDay":1,"days":1,"activate":true,"minWordCount":50,"vectorSize":200}'
+
+    JOB_OUTPUT_DIR_NAME=word2vec
+    rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
+    JOB_CLASS="io.seldon.spark.features.Word2VecJob"
+    ${STARTUP_DIR}/do-spark-job.sh $CLIENT $JOB_CLASS
 }
 
 CLIENT=$1
@@ -83,6 +105,9 @@ case $MODEL in
         ;;
     semantic_vectors)
         do_semantic_vectors
+        ;;
+    word2vec)
+        do_word2vec
         ;;
     *)
         echo "ignoring unkown model[$MODEL]"

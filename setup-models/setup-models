@@ -8,4 +8,5 @@ STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
 ${STARTUP_DIR}/create_models.sh movielens matrix_factorization
 ${STARTUP_DIR}/create_models.sh movielens item_similarity
 ${STARTUP_DIR}/create_models.sh movielens semantic_vectors
+${STARTUP_DIR}/create_models.sh movielens word2vec
 
