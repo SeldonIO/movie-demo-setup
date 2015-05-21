@@ -10,16 +10,6 @@ if [[ $# < 2 ]]; then
     exit 1
 fi
 
-CLIENT=$1
-MODEL=$2
-SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
-DATA_FOLDER=~/seldon-models
-export ZOOKEEPER_HOST=localhost
-if [[ "$(uname)" == "Darwin" ]]; then
-    BOOT2DOCKER_HOST=$(boot2docker ip)
-    export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
-fi
-
 set_zk_node() {
     local ZK_NODE_PATH="$1"
     local ZK_NODE_VALUE="$2"
@@ -51,12 +41,48 @@ do_item_similarity() {
     ${STARTUP_DIR}/upload-item-similarity-sql
 }
 
+do_semantic_vectors() {
+    JOB_CONFIG='{"inputPath":"/seldon-models","outputPath":"/seldon-models","startDay":1,"days":1,"activate":true,"itemType":1,"itemLimit":10000,"tagAttrs":"movielens_tags_full","jdbc":"jdbc:mysql://'${MYSQL_HOST}':3306/'${CLIENT}'?user=root&password='${MYSQL_ROOT_PASSWORD}'&characterEncoding=utf8"}'
+    set_zk_node "/all_clients/${CLIENT}/offline/semvec" "${JOB_CONFIG}"
+
+    JOB_OUTPUT_DIR_NAME=svtext
+    rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
+
+    docker run --rm -i -t \
+        -v ${DATA_FOLDER}:/seldon-models \
+        seldonio/semantic-vectors-for-seldon bash -c "./semvec/semantic-vectors.py --client ${CLIENT} --zookeeper ${ZOOKEEPER_HOST}:2181"
+
+}
+
+CLIENT=$1
+MODEL=$2
+SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
+DATA_FOLDER=~/seldon-models
+export ZOOKEEPER_HOST=localhost
+if [[ "$(uname)" == "Darwin" ]]; then
+    BOOT2DOCKER_HOST=$(boot2docker ip)
+    export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
+fi
+
+MYSQL_HOST=unkown_mysql_host
+if [[ "$(uname)" == "Darwin" ]]; then
+    BOOT2DOCKER_HOST=$(boot2docker ip)
+    MYSQL_HOST=$BOOT2DOCKER_HOST
+fi
+if [[ "$(uname)" == "Linux" ]]; then
+    MYSQL_HOST=$(hostname --ip-address)
+fi
+MYSQL_ROOT_PASSWORD=mypass
+
 case $MODEL in
     matrix_factorization)
         do_matrix_factorization
         ;;
     item_similarity)
         do_item_similarity
+        ;;
+    semantic_vectors)
+        do_semantic_vectors
         ;;
     *)
         echo "ignoring unkown model[$MODEL]"
