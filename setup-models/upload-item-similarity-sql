@@ -9,8 +9,7 @@ echo "${STARTUP_DIR}"
 SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
 SELDON_SPARK_HOME=${SELDON_SERVER_HOME}/offline-jobs/spark
 CLIENT=movielens
-DB_HOST=db
-export MYSQL_HOST=127.0.0.1
+export DB_HOST=127.0.0.1
 if [[ "$(uname)" == "Darwin" ]]; then
     BOOT2DOCKER_HOST=$(boot2docker ip)
     export DB_HOST=$BOOT2DOCKER_HOST
