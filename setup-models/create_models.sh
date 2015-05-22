@@ -93,7 +93,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
 fi
 if [[ "$(uname)" == "Linux" ]]; then
-    ZOOKEEPER_HOST=$(hostname --ip-address)
+    ZOOKEEPER_HOST=$(hostname --all-ip-addresses | awk '{print $1}')
 fi
 
 MYSQL_HOST=unkown_mysql_host
@@ -102,7 +102,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     MYSQL_HOST=$BOOT2DOCKER_HOST
 fi
 if [[ "$(uname)" == "Linux" ]]; then
-    MYSQL_HOST=$(hostname --ip-address)
+    MYSQL_HOST=$(hostname --all-ip-addresses | awk '{print $1}')
 fi
 MYSQL_ROOT_PASSWORD=mypass
 
