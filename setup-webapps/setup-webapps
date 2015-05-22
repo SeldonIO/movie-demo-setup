@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+LOCAL_DATA_DIR=${STARTUP_DIR}/../local_data
+
+WEBAPPS_DIR=${LOCAL_DATA_DIR}/webapps
+echo "removing ${WEBAPPS_DIR})" && rm -rf ${WEBAPPS_DIR}
+
+${STARTUP_DIR}/setup-seldon-api
+
+
