@@ -80,10 +80,14 @@ CLIENT=$1
 MODEL=$2
 SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
 DATA_FOLDER=~/seldon-models
-export ZOOKEEPER_HOST=localhost
+
+export ZOOKEEPER_HOST=unkown_zookeeper_host
 if [[ "$(uname)" == "Darwin" ]]; then
     BOOT2DOCKER_HOST=$(boot2docker ip)
     export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
+fi
+if [[ "$(uname)" == "Linux" ]]; then
+    ZOOKEEPER_HOST=$(hostname --ip-address)
 fi
 
 MYSQL_HOST=unkown_mysql_host
