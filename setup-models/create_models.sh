@@ -48,9 +48,15 @@ do_semantic_vectors() {
     set_zk_node "/all_clients/${CLIENT}/offline/semvec" "${JOB_CONFIG}"
 
     JOB_OUTPUT_DIR_NAME=svtext
-    rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
+    ##rm -rf ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1
 
     docker run --rm -i -t \
+        --name="semvec_container" \
+        -v ${DATA_FOLDER}:/seldon-models \
+        seldonio/semantic-vectors-for-seldon bash -c "rm -rfv /seldon-models/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1"
+
+    docker run --rm -i -t \
+        --name="semvec_container" \
         -v ${DATA_FOLDER}:/seldon-models \
         seldonio/semantic-vectors-for-seldon bash -c "./semvec/semantic-vectors.py --client ${CLIENT} --zookeeper ${ZOOKEEPER_HOST}:2181"
 
