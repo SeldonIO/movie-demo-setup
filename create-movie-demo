@@ -18,4 +18,5 @@ ${STARTUP_DIR}/setup-data/setup-data
 ${STARTUP_DIR}/setup-db/setup-db
 ${STARTUP_DIR}/import-data/import-data
 ${STARTUP_DIR}/setup-models/setup-models
+${STARTUP_DIR}/setup-webapps/setup-webapps
 
