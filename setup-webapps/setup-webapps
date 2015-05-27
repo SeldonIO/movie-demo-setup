@@ -6,6 +6,11 @@ set -o errexit
 STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
 LOCAL_DATA_DIR=${STARTUP_DIR}/../local_data
 
+if [[ -r "${STARTUP_DIR}/../run_settings" ]]; then
+    echo "using run_settings"
+    source "${STARTUP_DIR}/../run_settings"
+fi
+
 WEBAPPS_DIR=${LOCAL_DATA_DIR}/webapps
 echo "removing ${WEBAPPS_DIR})" && rm -rf ${WEBAPPS_DIR}
 
@@ -19,6 +24,20 @@ copy_dir_webapps() {
     fi
     echo "Copying ${DIR_NAME}" && cp -R ${STARTUP_DIR}/webapps/${DIR_NAME} ${TOMCAT_HOME}/webapps
 }
+
+add_js_embedly_prefix() {
+    JS_SCRIPT=$(ls ${STARTUP_DIR}/webapps/movie-demo/scripts/scripts.*.js)
+
+    if [ -z "${EMBEDLY_KEY:-}" ]; then
+        echo "-- No EMBEDLY_KEY found, removing its usage --"
+        sed -i -e 's/<EMBEDLY_HERE>//g' ${JS_SCRIPT}
+    else
+        echo "-- EMBEDLY_KEY found, enabling its usage --"
+        sed -i -e 's/<EMBEDLY_HERE>/http:\/\/i.embed.ly\/1\/display\/resize?key='${EMBEDLY_KEY}'\&url=/g' ${JS_SCRIPT}
+    fi
+}
+
+add_js_embedly_prefix
 
 copy_dir_webapps api-spec
 copy_dir_webapps swagger
