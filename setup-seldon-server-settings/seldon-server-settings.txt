@@ -1,0 +1,1 @@
+set /config/default_strategy {"algorithms":[{"config":[],"filters":[],"includers":[],"name":"recentItemsRecommender"}],"combiner":"firstSuccessfulCombiner"}

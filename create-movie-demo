@@ -14,6 +14,7 @@ WAIT_SECS=6
 echo waiting ${WAIT_SECS} secs...
 sleep ${WAIT_SECS}
 
+${STARTUP_DIR}/setup-seldon-server-settings/setup-seldon-server-settings
 ${STARTUP_DIR}/setup-data/setup-data
 ${STARTUP_DIR}/setup-db/setup-db
 ${STARTUP_DIR}/import-data/import-data

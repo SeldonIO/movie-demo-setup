@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+STARTUP_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+SELDON_SERVER_HOME=${STARTUP_DIR}/../../seldon-server
+
+export ZOOKEEPER_HOST=localhost
+if [[ "$(uname)" == "Darwin" ]]; then
+    BOOT2DOCKER_HOST=$(boot2docker ip)
+    export ZOOKEEPER_HOST=$BOOT2DOCKER_HOST
+fi
+cat ${STARTUP_DIR}/seldon-server-settings.txt | ${SELDON_SERVER_HOME}/vm/bin/zklines.py --zk-hosts ${ZOOKEEPER_HOST}
+
