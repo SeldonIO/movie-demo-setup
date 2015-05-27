@@ -44,7 +44,7 @@ do_item_similarity() {
 do_semantic_vectors() {
     echo " -- creating model [${CLIENT}] [svtext] --"
 
-    JOB_CONFIG='{"inputPath":"/seldon-models","outputPath":"/seldon-models","startDay":1,"days":1,"activate":true,"itemType":1,"itemLimit":10000,"tagAttrs":"movielens_tags_full","jdbc":"jdbc:mysql://'${MYSQL_HOST}':3306/'${CLIENT}'?user=root&password='${MYSQL_ROOT_PASSWORD}'&characterEncoding=utf8"}'
+    JOB_CONFIG='{"inputPath":"'${DATA_FOLDER}'","outputPath":"'${DATA_FOLDER}'","startDay":1,"days":1,"activate":true,"itemType":1,"itemLimit":10000,"tagAttrs":"movielens_tags_full","jdbc":"jdbc:mysql://'${MYSQL_HOST}':3306/'${CLIENT}'?user=root&password='${MYSQL_ROOT_PASSWORD}'&characterEncoding=utf8"}'
     set_zk_node "/all_clients/${CLIENT}/offline/semvec" "${JOB_CONFIG}"
 
     JOB_OUTPUT_DIR_NAME=svtext
@@ -52,14 +52,13 @@ do_semantic_vectors() {
 
     docker run --rm -i -t \
         --name="semvec_container" \
-        -v ${DATA_FOLDER}:/seldon-models \
-        seldonio/semantic-vectors-for-seldon bash -c "rm -rfv /seldon-models/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1"
+        -v ${DATA_FOLDER}:${DATA_FOLDER} \
+        seldonio/semantic-vectors-for-seldon bash -c "rm -rfv ${DATA_FOLDER}/${CLIENT}/${JOB_OUTPUT_DIR_NAME}/1"
 
     docker run --rm -i -t \
         --name="semvec_container" \
-        -v ${DATA_FOLDER}:/seldon-models \
+        -v ${DATA_FOLDER}:${DATA_FOLDER} \
         seldonio/semantic-vectors-for-seldon bash -c "./semvec/semantic-vectors.py --client ${CLIENT} --zookeeper ${ZOOKEEPER_HOST}:2181"
-
 }
 
 do_word2vec() {
