@@ -10,7 +10,7 @@ SELDON_SERVER_HOME=${STARTUP_DIR}/../seldon-server
 ${SELDON_SERVER_HOME}/vm/bin/stop-all
 ${SELDON_SERVER_HOME}/vm/bin/start-all
 
-WAIT_SECS=6
+WAIT_SECS=15
 echo waiting ${WAIT_SECS} secs...
 sleep ${WAIT_SECS}
 
